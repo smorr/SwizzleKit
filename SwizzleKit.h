@@ -14,6 +14,10 @@
 #include <execinfo.h>
 #include <stdio.h>
 
+
+#define BUNDLE_IDENTIFIER @"com.yourBundle.identifier"
+
+
 #define NS_YES [NSNumber numberWithBool:YES]
 #define NS_NO  [NSNumber numberWithBool:NO]
 
@@ -24,16 +28,19 @@
 
 #define CLS(className) NSClassFromString([NSString stringWithFormat:@"%s",#className])
 
+#define LOG_FOR_KEY(key,s,...)  [SKLogger logForKey: key file:__FILE__ function: (char *)__FUNCTION__ lineNumber:__LINE__ format:(s),##__VA_ARGS__]
+
 @interface NSObject (SwizzleKit)
-//respondsDirectlyToSelector method returns YES if this object implements the selector directly.  
-// 									Returns NO if any superclass implements the selector or no superclass implemention.
+	//respondsDirectlyToSelector method returns YES if this object implements the selector directly.  
+	// 									Returns NO if any superclass implements the selector or no superclass implemention.
 -(BOOL)respondsDirectlyToSelector:(SEL)aSelector;
 @end
 
 
 // describeClass is a quick and dirty function to be called in gdb to get the details of a class (ivars, methods, super methods etc)
 
-void describeClass(const char * clsName);
+void SKdescribeClass(const char * clsName);
+
 
 // BACKTRACE MACRO
 // This is used in debugging and code analysis
@@ -158,8 +165,8 @@ void describeClass(const char * clsName);
 // note that because of the nature of mapTables, the setter will always retain the value passed in.
 //   make copies prior to adding to the function
 // for assignment, wrap the value in an NSValue Object.
-id MTobject_getMapTableVariable(id anObject, const char* variableName);
-void MTobject_setMapTableVariable(id anObject, const char* variableName,id value);
+id SKobject_getMapTableVariable(id anObject, const char* variableName);
+void SKobject_setMapTableVariable(id anObject, const char* variableName,id value);
 
 
 // The following Macros standardize the creation of getters and setters for ivars
@@ -265,9 +272,6 @@ void MTobject_setMapTableVariable(id anObject, const char* variableName,id value
 
 
 
-BOOL isLeopard();
-BOOL isSnowLeopard();
-
 @interface Swizzler : NSObject{
 }
 +(void)setPrefix:(NSString*)prefix;
@@ -282,17 +286,15 @@ BOOL isSnowLeopard();
 
 @end
 
-@interface MLog : NSObject
+@interface SKLogger : NSObject
 {
 }
-+(void)logWithOptions:(NSInteger)options file:(char*)sourceFile function:(char*)functionName lineNumber:(NSInteger)lineNumber format:(NSString*)format, ...;
 +(void)logForKey:(NSString*)key file:(char*)sourceFile function:(char*)functionName lineNumber:(NSInteger)lineNumber format:(NSString*)format, ...;
 
-+(void)setLogOn:(BOOL)logOn;
 @end
 
 
-@interface NSThread (MailTags)
+@interface NSThread (SwizzleKit)
 +(NSArray*)abbreviatedCallStackSymbols;
 @end
 
