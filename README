@@ -1,0 +1,15 @@
+Welcome to the initial work on SwizzleKit
+
+SwizzleKit is intended to be a collection of macros, functions, categories and classes to facilitate a systematic way of extending closed sourced code.
+
+Rationale
+
+Writing plugins for closed sourced applications is difficult and has become more difficult with 10.6 in 64bit mode.  
+
+Writing stable and successful plugins require a good degree of methodical work to do trivial task such as writing categories, accessing ivars in methods.  SwizzleKit provides a formal way to do this so that theses tasks are bug free.
+
+If you discover problems in the code, comment and, if possible, let me know what is a better way to do these things.
+
+Use at your own risk. If using SwizzleKit results in horrible things, I absolve myself of all responsibility.
+
+Have Fun.
