@@ -8,6 +8,8 @@
 //  ------------------------------------------------------------------------
 
 #import "SwizzleKit.m"
+#define SWIZZLE_PREFIX @"UNIQUE_PREFIX"
+#define PROVIDER_SUFFIX @"UNIQUE_PREFIX"
 
 @implementation NSObject (UNIQUE_PREFIXSwizzleKit)
 
