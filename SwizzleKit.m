@@ -349,7 +349,7 @@ format:(NSString*)format, ...
 @end
 
 
-@implementation NSThread(MailTags)
+@implementation NSThread(SwizzleKit)
 +(NSArray*)abbreviatedCallStackSymbols{
 	
 	void* callstack[128];
