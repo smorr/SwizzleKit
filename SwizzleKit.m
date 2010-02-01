@@ -9,9 +9,9 @@
 
 #import "SwizzleKit.m"
 
-@implementation NSObject (SwizzleKit)
+@implementation NSObject (UNIQUE_PREFIXSwizzleKit)
 
--(BOOL)respondsDirectlyToSelector:(SEL)aSelector{
+-(BOOL)UNIQUE_PREFIXrespondsDirectlyToSelector:(SEL)aSelector{
 	BOOL responds = NO;
 	unsigned int methodCount = 0;
 	Method * methods = nil;
@@ -32,7 +32,7 @@
 @end
 
 
-id SKobject_getMapTableVariable(id anObject, const char* variableName){
+id UNIQUE_PREFIXobject_getMapTableVariable(id anObject, const char* variableName){
 	static NSMapTable * mapTable = nil;
 	if (!mapTable){
 		if ([[anObject class] respondsToSelector:@selector(mapTable)]){
@@ -54,7 +54,7 @@ id SKobject_getMapTableVariable(id anObject, const char* variableName){
 	return theValue;
 }
 
-void SKobject_setMapTableVariable(id anObject, const char* variableName,id value){
+void UNIQUE_PREFIXobject_setMapTableVariable(id anObject, const char* variableName,id value){
 	static NSMapTable * mapTable = nil;
 	if (!mapTable){
 		if ([[anObject class] respondsToSelector:@selector(mapTable)]){
@@ -80,7 +80,7 @@ void SKobject_setMapTableVariable(id anObject, const char* variableName,id value
 	
 }
 
-void SKdescribeClass(const char * clsName){
+void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	Class aClass = objc_getClass(clsName);
 	if (aClass){
 		NSMutableString * logString = [NSMutableString string];
@@ -116,7 +116,7 @@ void SKdescribeClass(const char * clsName){
 	}
 }
 
-@implementation Swizzler
+@implementation UNIQUE_PREFIXSwizzler
 +(Class)subclass:(Class)baseClass usingClassName:(NSString*)subclassName providerClass:(Class)providerClass{
 	Class subclass = objc_allocateClassPair(baseClass, [subclassName UTF8String], 0);
 	if (!subclass) return nil;
@@ -307,51 +307,11 @@ void SKdescribeClass(const char * clsName){
 @end
 
 
-@implementation SKLogger
-+(void)logStackTrace{
-	fprintf(stderr, "------ STACK TRACE ------\n");	
-	
-	
-	void* callstack[128];
-	int i, frames = backtrace(callstack, 128);
-	char** strs = backtrace_symbols(callstack, frames);
-	for (i = 0; i < frames; ++i) {
-		printf("%s\n", strs[i]);
-	}
-	free(strs);
-}
-
-+(void)logForKey:(NSString*)key file:(char*)sourceFile function:(char*)functionName lineNumber:(NSInteger)lineNumber
-format:(NSString*)format, ... 
-{
-	BOOL shouldLogForKey=[[[[NSUserDefaults standardUserDefaults] persistentDomainForName: BUNDLE_IDENTIFIER]  objectForKey:key] boolValue];
-	if(shouldLogForKey ){
-		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-		va_list ap;
-		NSString *print,*file, *function;
-		va_start(ap,format);
-		file=[[NSString alloc] initWithBytes:sourceFile 
-									  length:strlen(sourceFile) 
-									encoding:NSUTF8StringEncoding];
-		function = [NSString stringWithCString:functionName encoding: NSUTF8StringEncoding];
-		print=[[NSString alloc] initWithFormat:format arguments:ap];
-		va_end(ap);
-		NSLog(@"(%@)%@ line %ld\n     %@",key,function,(long)lineNumber ,print);
-		[print release];
-		[file release];
-		
-		[pool release];
-		
-	}
-	return;
-}
-
-@end
 
 
 @implementation NSThread(SwizzleKit)
 +(NSArray*)abbreviatedCallStackSymbols{
-	
+	// returns the backtrace as a NSArray of NSStrings, simplifying the addresses etc in the process.
 	void* callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
@@ -382,6 +342,7 @@ format:(NSString*)format, ...
 }
 
 +(NSArray *)callStackSymbolsForFrameCount:(NSInteger) frameCount{
+	// will return the most recent <frameCount> stackFrames from the backtrace
 	void* callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
