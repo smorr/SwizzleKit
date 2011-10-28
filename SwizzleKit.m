@@ -17,7 +17,7 @@
 	BOOL responds = NO;
 	unsigned int methodCount = 0;
 	Method * methods = nil;
-	
+
 	// extend instance Methods
 	methods = class_copyMethodList([self class], &methodCount);
 	int ci= methodCount;
@@ -79,7 +79,7 @@ void UNIQUE_PREFIXobject_setMapTableVariable(id anObject, const char* variableNa
 			}
 		}
 	}
-	
+
 }
 
 void UNIQUE_PREFIXdescribeClass(const char * clsName){
@@ -94,26 +94,26 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 		Ivar * ivars = class_copyIvarList(aClass, &ivarCount);
 		for (ci=0;ci<ivarCount;ci++){
 			[logString appendFormat:@"    %s %s; //%ld\n",ivar_getTypeEncoding(ivars[ci]), ivar_getName(ivars[ci]), ivar_getOffset(ivars[ci])];
-			
+
 		}
 		[logString appendString:@"}\n"];
 		free(ivars);
-		
+
 		unsigned int classMethodCount =0;
 		Method *classMethods = class_copyMethodList(object_getClass(aClass), &classMethodCount);
 		for(ci=0;ci<classMethodCount;ci++){
 			[logString appendFormat:@"+[%s %@]\n",class_getName(aClass),NSStringFromSelector(method_getName(classMethods[ci]))];
 		}
 		free(classMethods);
-		
+
 		unsigned int instanceMethodCount =0;
 		Method *instanceMethods = class_copyMethodList(aClass, &instanceMethodCount);
 		for(ci=0;ci<instanceMethodCount;ci++){
 			[logString appendFormat:@"-[%s %@]\n",class_getName(aClass),NSStringFromSelector(method_getName(instanceMethods[ci]))];
 		}
-		
-		
-		
+
+
+
 		NSLog(@"%@",logString);
 	}
 }
@@ -122,13 +122,13 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 +(Class)subclass:(Class)baseClass usingClassName:(NSString*)subclassName providerClass:(Class)providerClass{
 	Class subclass = objc_allocateClassPair(baseClass, [subclassName UTF8String], 0);
 	if (!subclass) return nil;
-	
+
 	unsigned int ivarCount =0;
 	Ivar * ivars = class_copyIvarList(providerClass, &ivarCount);
 	int ci = 0;
 	for (ci=0 ;ci < ivarCount; ci++){
 		Ivar anIvar = ivars[ci];
-		
+
 		NSUInteger ivarSize = 0;
 		NSUInteger ivarAlignment = 0;
 		const char * typeEncoding = ivar_getTypeEncoding(anIvar);
@@ -140,18 +140,18 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 			NSLog(@"could not add iVar %s", ivar_getName(anIvar));
 			return nil;
 		}
-	
+
 	}
 	free(ivars);
 	objc_registerClassPair(subclass);
-	
+
 	[self extendClass:subclass withMethodsFromClass:providerClass];
 	return subclass;
 }
 +(void)extendClass:(Class) targetClass withMethodsFromClass:(Class)providerClass{
 	unsigned int methodCount = 0;
 	Method * methods = nil;
-	
+
 	// extend instance Methods
 	methods = class_copyMethodList(providerClass, &methodCount);
 	int ci= methodCount;
@@ -161,7 +161,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 		//NSLog(@"extending -[%s %@]",class_getName(targetClass),methodName);
 	}
 	free(methods);
-	
+
 	// extend Class Methods
 	methods = class_copyMethodList(object_getClass(providerClass), &methodCount);
 	ci= methodCount;
@@ -171,7 +171,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 		//NSLog(@"extending +[%s %@]",class_getName(targetClass),methodName);
 	}
 	free(methods);
-	
+
 	methods  = 0;
 }
 +(BOOL)addClassMethodName:(NSString *)methodName fromProviderClass:(Class)providerClass toClass:(Class)targetClass{
@@ -181,18 +181,18 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	}
 	SEL selector = NSSelectorFromString(methodName);
 	Method originalMethod = class_getClassMethod(providerClass,selector);
-	
+
 	if (!originalMethod) {
 		return NO;
 	}
-	
+
 	IMP originalImplementation  = method_getImplementation(originalMethod);
 	if (!originalImplementation){
 		return NO;
 	}
-	
+
 	class_addMethod(metaClass, selector ,originalImplementation, method_getTypeEncoding(originalMethod));
-	
+
 	return YES;
 }
 
@@ -202,18 +202,18 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	}
 	SEL selector = NSSelectorFromString(methodName);
 	Method originalMethod = class_getInstanceMethod(providerClass,selector);
-	
+
 	if (!originalMethod) {
 		return NO;
 	}
-	
+
 	IMP originalImplementation  = method_getImplementation(originalMethod);
 	if (!originalImplementation){
 		return NO;
 	}
-	
+
 	class_addMethod(targetClass, selector ,originalImplementation, method_getTypeEncoding(originalMethod));
-	
+
 	return YES;
 }
 
@@ -223,7 +223,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	SEL oldSelector = NSSelectorFromString(methodName);
 	NSString * newMethodName = [SWIZZLE_PREFIX stringByAppendingString:methodName];
 	SEL newSelector = NSSelectorFromString(newMethodName);
-	
+
 	oldMethod = class_getClassMethod(targetClass, oldSelector);
 	if (oldMethod==NULL) {
 		NSLog(@"SWIZZLE Error - Can't find existing method for +[%@ %@]",NSStringFromClass(targetClass),NSStringFromSelector(oldSelector));
@@ -247,19 +247,19 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 			NSLog(@"SWIZZLE Error - Can't find existing method for +[%@ %@]",NSStringFromClass(targetClass),NSStringFromSelector(oldSelector));
 			return NULL;
 		}
-		
+
 		//Debugger();
 	}
 	if (NULL != oldMethod && NULL != newMethod) {
-		//newIMP = 
+		//newIMP =
 		newIMP= method_getImplementation(oldMethod);
 		method_exchangeImplementations(oldMethod, newMethod);
-		
+
 		//newIMP = method_setImplementation(oldMethod,method_getImplementation(newMethod));
 		//method_setImplementation(newMethod, newIMP);
 		return newIMP;
 	}
-	
+
 	return NULL;
 }
 +(IMP)swizzleInstanceMethod:(NSString*)methodName forClass:(Class)targetClass{
@@ -269,7 +269,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	SEL oldSelector = NSSelectorFromString(methodName);
 	NSString * newMethodName = [SWIZZLE_PREFIX stringByAppendingString:methodName];
 	SEL newSelector = NSSelectorFromString(newMethodName);
-	
+
 	oldMethod = class_getInstanceMethod(targetClass, oldSelector);
 	if (oldMethod==NULL) {
 		NSLog(@"SWIZZLE Error - Can't find existing method for -[%@ %@]",NSStringFromClass(targetClass),NSStringFromSelector(oldSelector));
@@ -293,17 +293,17 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 			NSLog(@"SWIZZLE Error - Can't find existing method for -[%@ %@]",NSStringFromClass(targetClass),NSStringFromSelector(oldSelector));
 			return NULL;
 		}
-		
+
 		//Debugger();
 	}
 	if (NULL != oldMethod && NULL != newMethod) {
 		//newIMP = method_exchangeImplementations(, )
 		oldIMP = method_setImplementation(oldMethod,method_getImplementation(newMethod));
 		method_setImplementation(newMethod, oldIMP);
-		
+
 		return oldIMP;
 	}
-	
+
 	return NULL;
 }
 @end
@@ -318,7 +318,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	int i, frames = backtrace(callstack, 128);
 	char** strs = backtrace_symbols(callstack, frames);
 	NSMutableArray *callStack = [[NSMutableArray alloc] initWithCapacity:frames];
-	
+
 	for (i = 1; i < frames; ++i) {
 		NSString * frameString = [[NSString alloc] initWithUTF8String:strs[i]];
 		NSScanner * scanner = [NSScanner scannerWithString:frameString];
@@ -336,10 +336,10 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 		NSString * method = nil;
 		[scanner scanUpToCharactersFromSet:[NSCharacterSet newlineCharacterSet] intoString:&method];
 		[callStack addObject:[NSString stringWithFormat:@"%3-s %18-s %@",[frameNumber UTF8String],[module UTF8String],method]];
-		
+
 	}
 	free(strs);
-	
+
 	return [callStack autorelease];
 }
 
@@ -350,7 +350,7 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 	char** strs = backtrace_symbols(callstack, frames);
 	NSMutableArray *callStack = [[NSMutableArray alloc] initWithCapacity:frames];
 	int maxFrame = MIN(frames,frameCount+1);
-	
+
 	for (i = 1; i < maxFrame; ++i) {
 		NSString * frameString = [[NSString alloc] initWithUTF8String:strs[i]];
 		NSScanner * scanner = [NSScanner scannerWithString:frameString];
@@ -368,12 +368,12 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName){
 		NSString * method = nil;
 		[scanner scanUpToCharactersFromSet:[NSCharacterSet newlineCharacterSet] intoString:&method];
 		[callStack addObject:[NSString stringWithFormat:@"%3-s %18-s %@",[frameNumber UTF8String],[module UTF8String],method]];
-		
+
 	}
 	free(strs);
-	
+
 	return [callStack autorelease];
-	
+
 }
 @end
 

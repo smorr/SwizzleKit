@@ -4,7 +4,7 @@ SwizzleKit is intended to be a collection of macros, functions, categories and c
 
 Rationale
 
-Writing plugins for closed sourced applications is difficult and has become more difficult with 10.6 in 64bit mode.  
+Writing plugins for closed sourced applications is difficult and has become more difficult with 10.6 in 64bit mode.
 
 Writing stable and successful plugins require a good degree of methodical work to do trivial task such as writing categories, accessing ivars in methods.  SwizzleKit provides a formal way to do this so that theses tasks are bug free.
 

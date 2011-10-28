@@ -8,9 +8,9 @@
 //  ------------------------------------------------------------------------
 
 
-// Underimplemented!!!! 
+// Underimplemented!!!!
 //
-// This is a work in progress.   somethings probaby won't work. 
+// This is a work in progress.   somethings probaby won't work.
 // have fun!
 
 
@@ -45,10 +45,10 @@
 #define SUPER(...)  objc_msgSendSuper(&(struct objc_super){self, class_getSuperclass([self class])},_cmd, ##__VA_ARGS__)
 
 
-//respondsDirectlyToSelector method returns YES if this object implements the selector directly.  
+//respondsDirectlyToSelector method returns YES if this object implements the selector directly.
 // 									Returns NO if any superclass implements the selector or no superclass implemention.
 
-@interface NSObject (UNIQUE_PREFIXswizzleKit) 
+@interface NSObject (UNIQUE_PREFIXswizzleKit)
 	-(BOOL)UNIQUE_PREFIXrespondsDirectlyToSelector:(SEL)aSelector;
 @end
 
@@ -74,8 +74,8 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName);
 // It will also create a class Method +mapTable that will create the maptable on the first call (access though the accessors function above.
 
 // The mapTableVariables should be accessed ONLY through the use of the functions declared above
-// 
-	
+//
+
 #define IMPLEMENT_MAPTABLE_VARIABLES_USING_PREFIX(prefix) \
 	static NSMapTable	*_mappedViewerIVars = NULL; \
 	static NSLock * _mapTableLock = nil; \
@@ -184,8 +184,8 @@ void UNIQUE_PREFIXdescribeClass(const char * clsName);
 	} \
 
 
-id UNIQUE_PREFIXobject_getMapTableVariable(id anObject, const char* variableName); 
-void UNIQUE_PREFIXobject_setMapTableVariable(id anObject, const char* variableName,id value); 
+id UNIQUE_PREFIXobject_getMapTableVariable(id anObject, const char* variableName);
+void UNIQUE_PREFIXobject_setMapTableVariable(id anObject, const char* variableName,id value);
 
 
 
